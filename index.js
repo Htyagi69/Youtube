@@ -3,7 +3,10 @@ const axios=require('axios')
 const express= require('express');
 const path =require('path');
 const cors=require('cors')
+const dotenv=require('dotenv')
+dotenv.config();
 const app=express();
+
 // const client=require('./client')
 
 app.use(express.json());
@@ -12,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname,'public')));
 
 // const API_KEY='AIzaSykdV8g';
-const API_KEY='AIzaSyBwYEhcrA-UDyD_sprTy8lreyJWHgkdV8g';
+const API_KEY=process.env.YOUTUBE_API_KEY;
 const BASE_URL='https://www.googleapis.com/youtube/v3/search'
 app.get('/',(req,res)=>{
     res.sendFile(path.join(__dirname,'public','index.html'));
