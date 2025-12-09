@@ -41,7 +41,7 @@ app.get('/video',async(req,res)=>{
         videoId:video.id.videoId,
         thumbnail:video.snippet.thumbnails.default.url
        }))
-       console.log(response);
+       console.log("vid",videos);
        
     //    res.send("fine Got it")
        res.json(videos)
