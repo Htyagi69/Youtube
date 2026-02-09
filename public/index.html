@@ -3,126 +3,227 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YouTube Clone</title>
+  <title>YouTube Clone - Dynamic</title>
+  <style>
+    :root {
+      --bg-color: #0f0f0f;
+      --header-bg: #0f0f0f;
+      --sidebar-bg: #0f0f0f;
+      --hover-color: #272727;
+      --text-main: #ffffff;
+      --accent-red: #ff0000;
+      --sidebar-width: 240px;
+      --sidebar-compact-width: 72px;
+    }
+
+    * { box-sizing: border-box; font-family: "Roboto", Arial, sans-serif; }
+
+    body {
+      margin: 0;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    /* --- HEADER --- */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 56px;
+      background-color: var(--header-bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 1000;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    
+    .menu-btn {
+      background: none; border: none; color: white; cursor: pointer;
+      padding: 8px; border-radius: 50%; font-size: 20px;
+    }
+    .menu-btn:hover { background-color: var(--hover-color); }
+
+    .logo { display: flex; align-items: center; gap: 4px; font-weight: bold; font-size: 18px; cursor: pointer; }
+
+    .search-container { display: flex; flex: 0 1 600px; gap: 10px; align-items: center; }
+    
+    .search-bar {
+      display: flex; flex: 1; background: #121212; border: 1px solid #333;
+      border-radius: 40px 0 0 40px; padding: 0 16px;
+    }
+    .search-bar input {
+      width: 100%; background: transparent; border: none; color: white;
+      height: 40px; font-size: 16px; outline: none;
+    }
+    .search-btn {
+      background: #222; border: 1px solid #333; border-left: none;
+      border-radius: 0 40px 40px 0; padding: 0 20px; cursor: pointer; color: white;
+    }
+    .mic-btn {
+      background: #181818; border: none; border-radius: 50%; width: 40px; height: 40px;
+      color: white; cursor: pointer;
+    }
+
+    /* --- SIDEBAR --- */
+    nav {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      width: var(--sidebar-width);
+      height: calc(100vh - 56px);
+      background-color: var(--sidebar-bg);
+      transition: width 0.3s ease;
+      overflow-y: auto;
+      z-index: 999;
+    }
+
+    nav.compact { width: var(--sidebar-compact-width); }
+
+    .nav-item {
+      display: flex; align-items: center; padding: 0 24px; height: 48px;
+      text-decoration: none; color: white; border-radius: 10px; margin: 0 12px;
+      transition: background 0.2s;
+    }
+    .nav-item:hover { background-color: var(--hover-color); }
+    
+    .nav-item i { width: 24px; font-size: 20px; margin-right: 24px; }
+    
+    nav.compact .nav-item { padding: 0; justify-content: center; margin: 4px 0; }
+    nav.compact .nav-item i { margin-right: 0; }
+    nav.compact .nav-item span { display: none; }
+
+    /* --- MAIN CONTENT --- */
+    main {
+      margin-top: 56px;
+      margin-left: var(--sidebar-width);
+      padding: 24px;
+      transition: margin-left 0.3s ease;
+    }
+    main.expanded { margin-left: var(--sidebar-compact-width); }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .video-card { cursor: pointer; transition: transform 0.2s; }
+    .video-card img { width: 100%; border-radius: 12px; aspect-ratio: 16/9; object-fit: cover; }
+    .video-info { display: flex; gap: 12px; margin-top: 12px; }
+    .video-text h3 { margin: 0; font-size: 16px; line-height: 1.4; }
+    .video-text p { margin: 4px 0 0; color: #aaa; font-size: 14px; }
+
+    #speechStatus { text-align: center; color: #aaa; font-style: italic; margin-bottom: 20px; }
+  </style>
 </head>
-<body style="margin:0; display:grid; grid-template-rows: 60px 1fr; grid-template-columns: 100px 1fr;
-             grid-template-areas: 'header header' 'sidebar main'; background-color:black; color:red; font-family:Arial, sans-serif; height:100vh;">
+<body>
 
-  <div style="grid-area: header; background-color: #202020; display: flex; align-items: center;
-              justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #333;">
-    <h1 style="margin: 0; width: 220px; display: flex; justify-content: center; gap: 12px;">
-      <img src="icon.png" alt="img" style="width: 55px;height: 50px;border-radius: 40px;"> YouTube
-    </h1>
-    <div style="display: flex; gap: 10px;">
-      <input id="searchInput" type="text" placeholder="Search videos..." style="padding:5px 50px;border-radius: 10px; font-size: 16px; " />
-      <button onclick={searchVideos(),clean()} style="padding: 5px 10px;background-color: wheat; border-radius: 10px;"><img src="search.png" alt="img" width="20px" ></button>
-      <button onclick={Speak(),clean()} style="padding: 5px 10px;background-color: wheat; border-radius: 10px;"><img src="speak.png" alt="img" width="20px" ></button>
+  <header>
+    <div class="header-left">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="logo" style="display: flex; justify-content: center; align-items: center;">
+        <span style="color:var(--accent-red);display: flex; justify-content: center; align-items: center;font-size: 50px;">📽️</span> YouTube
+      </div>
     </div>
-  </div>
+    <div class="search-container">
+      <div class="search-bar">
+        <input id="searchInput" type="text" placeholder="Search">
+      </div>
+      <button class="search-btn" onclick="searchVideos()"><img width="30px" src="search.png"/></button>
+      <button class="mic-btn" onclick="Speak()"><img width="30px" src="speak.png"/></button>
+    </div>
+    <div style="width: 40px; height: 40px; border-radius: 50%; background: #555; display: flex; justify-content: center; align-items: center;font-size: 30px;">👻</div>
+  </header>
 
-  <div style="grid-area: sidebar; background-color: #121212;width:200px; border-radius: 12px;">
-    <ul style="list-style: none; padding: 0; margin: 0;">
-      <li style="padding: 10px;margin-bottom: 10px; border-bottom: 1px solid gray;"><a href="#" style="color:white; text-decoration:none; font-weight: bolder; font-size: larger;">🏠 Home</a></li>
-      <li style="padding: 10px;margin-bottom: 10px; border-bottom: 1px solid gray;"><a href="#" style="color:white; text-decoration:none; font-weight: bolder; font-size: larger;">🔥 Trending</a></li>
-      <li style="padding: 10px;margin-bottom: 10px; border-bottom: 1px solid gray;"><a href="#" style="color:white; text-decoration:none; font-weight: bolder; font-size: larger;">📺 Subscriptions</a></li>
-      <li style="padding: 10px;margin-bottom: 10px; border-bottom: 1px solid gray;"><a href="#" style="color:white; text-decoration:none; font-weight: bolder; font-size: larger;">📂 Library</a></li>
-    </ul>
-  </div>
+  <nav id="sidebar" style="margin-top: 23px;">
+    <a href="#" class="nav-item"><i>🏠</i> <span>Home</span></a>
+    <a href="#" class="nav-item"><i>🔥</i> <span>Trending</span></a>
+    <a href="#" class="nav-item"><i>📺</i> <span>Subscriptions</span></a>
+    <hr style="border: 0; border-top: 1px solid #333; margin: 12px 0;">
+    <a href="#" class="nav-item"><i>📂</i> <span>Library</span></a>
+    <a href="#" class="nav-item"><i>🕒</i> <span>History</span></a>
+  </nav>
 
-  <div style="grid-area: main; padding: 15px; margin-left: 100px;">
-    <div data-video-container style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px;">
-    </div>
-    <div class="output">
-        <p id="output" style="text-align: center; font-size: 24px;">Waiting for speech input...</p>
-    </div>
-  </div>
+  <main id="mainContent">
+    <p id="speechStatus">Ready</p>
+    <div class="video-grid" data-video-container>
+      </div>
+  </main>
 
   <script>
-    function clean(){
-       Object.keys(localStorage).forEach(key=>{
-           if(key.startsWith('video_')){
-            localStorage.removeItem(key);
-           }})
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('compact');
+      document.getElementById('mainContent').classList.toggle('expanded');
     }
-    function renderstoredvideos(){
+
+    function renderStoredVideos() {
       const container = document.querySelector('[data-video-container]');
-        container.innerHTML = '';
-         
-         for(let i=0;i<localStorage.length;i++){
-          let key=localStorage.key(i);
+      container.innerHTML = '';
 
-          if(key.startsWith('video_')){
-            const video=JSON.parse(localStorage.getItem(key))
-          const videoCard = document.createElement('div');
-          videoCard.style = "background-color:#2c2c2c; width: 320px; height:220px;border-radius: 5px; display:flex; align-items:center; justify-content:center;";
-
-          videoCard.innerHTML = `
-            <iframe src="https://www.youtube.com/embed/${video.videoId}" 
-                    style="border-radius: 5px; width:360px ;height:240px" 
-                    title="${video.title}" allowfullscreen loading="lazy"></iframe>
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('video_')) {
+          const video = JSON.parse(localStorage.getItem(key));
+          const card = document.createElement('div');
+          card.className = 'video-card';
+          card.innerHTML = `
+            <img src="${video.thumbnail}" alt="thumb">
+            <div class="video-info">
+              <div style="width:36px; height:36px; border-radius:50%; background:#333;display: flex; justify-content: center; align-items: center;font-size: 30px;">🎉</div>
+              <div class="video-text">
+                <h3>${video.title}</h3>
+                <p>Channel Name • 1.2M views</p>
+              </div>
+            </div>
           `;
-
-          container.appendChild(videoCard);
-          }
+          card.onclick = () => playVideo(video.videoId);
+          container.appendChild(card);
+        }
       }
     }
-    async function searchVideos(transcript) {
-      console.log("transcript:",transcript);
-      const query = document.getElementById('searchInput').value || transcript;
-      // console.log(query );
-      
-      if (!query) return alert('Please enter a search term');
 
+    function playVideo(id) {
+        const container = document.querySelector('[data-video-container]');
+        container.innerHTML = `
+            <div style="grid-column: 1 / -1;">
+                <iframe width="100%" height="500px" src="https://www.youtube.com/embed/${id}?autoplay=1" 
+                frameborder="0" allowfullscreen style="border-radius:15px;"></iframe>
+                <button onclick="renderStoredVideos()" style="background:#333; color:white; border:none; padding:10px 20px; margin-top:10px; border-radius:5px; cursor:pointer;">Back to Results</button>
+            </div>
+        `;
+    }
+
+    async function searchVideos(transcript) {
+      const query = document.getElementById('searchInput').value || transcript;
+      if (!query) return;
+      
+      localStorage.clear(); 
       try {
         const res = await fetch(`/video?q=${encodeURIComponent(query)}`);
         const data = await res.json();
-        data.forEach(info=>{
-          localStorage.setItem(`video_${info.videoId}`,JSON.stringify(info))
-        })
-        // alert('fine')
-        renderstoredvideos();
-
-     } catch (err) {
-        console.error('Error fetching videos:', err);
-        alert('Failed to load videos');
-      }
+        data.forEach(info => localStorage.setItem(`video_${info.videoId}`, JSON.stringify(info)));
+        renderStoredVideos();
+      } catch (err) { console.error(err); }
     }
 
-    async function Speak(){
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-             
-               const scrib = {
-                 show: (msg) => {
-                   document.getElementById("output").textContent = msg;
-                   console.log(msg);
-                 }
-               };
-             
-             
-             if (!SpeechRecognition) {
-               console.error("SpeechRecognition is not supported in this browser.");
-             } else {
-               const r = new SpeechRecognition();
-               r.continuous = false;
-               r.interimResults = false;
-               r.maxAlternatives = 1;
-             
-               r.onstart = function () {
-                 console.log("Speech recognition started");
-                 scrib.show("R is started");
-               };
-             
-               r.onresult = async function (event) {
-                 const transcript = event.results[0][0].transcript;
-                 console.log("Transcript:", transcript);
-                 scrib.show(`You said: ${transcript}`);
-                 searchVideos(transcript)
-               };
-               r.start()
-               console.log("started")
-             }
-                 }
-        window.addEventListener('DOMContentLoaded',renderstoredvideos)
+    async function Speak() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
+      const r = new SpeechRecognition();
+      r.onstart = () => document.getElementById("speechStatus").textContent = "Listening...";
+      r.onresult = (e) => {
+        const t = e.results[0][0].transcript;
+        document.getElementById("speechStatus").textContent = `Searching for: ${t}`;
+        searchVideos(t);
+      };
+      r.start();
+    }
+
+    window.addEventListener('DOMContentLoaded', renderStoredVideos);
   </script>
 </body>
 </html>
