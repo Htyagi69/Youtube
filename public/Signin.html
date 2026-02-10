@@ -90,20 +90,25 @@
         <input type="password"  name="password" placeholder="••••••••" />
       </div>
 
-      <button type="submit">Login</button>
+      <button type="submit" id="btn">Login</button>
     </form>
   </div>
   <script>
     const handleAuth=async(info)=>{
         info.preventDefault();
+    const btn=document.getElementById('btn')
+    btn.style.backgroundColor='#6e736e';
+    const originalText = btn.innerHTML;
         const email=info.target.email.value;
         const password=info.target.password.value;
+        startLoading();
         console.log(email,"--->",password);
         const payload={
           email:email,
           password:password,
         }  
-       const result=await fetch('https://youtubesearch-l75z.onrender.com/api/auth/sign-in/email',{
+        try{
+       const result=await fetch('http://localhost:3000/api/auth/sign-in/email',{
          method:"POST", 
          body:JSON.stringify(payload),
           headers:{ "Content-Type":"application/json", },
@@ -117,7 +122,24 @@
             const error = await result.json();
             alert(error.message || 'Login failed');
         }
-             }
+             }catch (err) {
+        console.error(err);
+    } finally {
+        stopLoading(originalText);
+    }
+     }
+      function startLoading() {
+    btn.disabled = true;
+    btn.style.backgroundColor = '#6e736e';
+    // Preserve the original text and add the spinner
+    btn.innerHTML = `<span class="spinner"></span> Loading...`;
+}
+
+function stopLoading(originalText) {
+    btn.disabled = false;
+    btn.style.backgroundColor = '#4caf50'; 
+    btn.innerHTML = originalText;
+}
   </script>
 </body>
 </html>
