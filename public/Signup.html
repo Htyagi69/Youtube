@@ -111,7 +111,7 @@
           email:email,
           password:password
         }
-        const result=await fetch('http://localhost:3000/api/auth/sign-up/email',{
+        const result=await fetch('https://youtubesearch-l75z.onrender.com/api/auth/sign-up/email',{
            method:"POST",
             body:JSON.stringify(payload), 
             headers:{ "Content-Type":"application/json", },
