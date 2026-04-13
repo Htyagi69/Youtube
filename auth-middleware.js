@@ -4,10 +4,7 @@ const requireAuth = async (req, res, next) => {
         const session = await auth.api.getSession({ headers: req.headers });
 
         if (!session?.user) {
-            return res.status(401).json({
-                error: 'Unauthorized',
-                redirectTo: '/signin.html'
-            });
+            return res.redirect('/Signin.html');
         }
 
         req.user = session.user;
