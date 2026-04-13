@@ -18,7 +18,6 @@ const app=express();
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname,'public')));
 
 app.all("/api/auth/*", async (req, res) => {
     // We manually construct the full URL to stop the "Invalid URL" crash
@@ -43,10 +42,11 @@ app.all("/api/auth/*", async (req, res) => {
 // const API_KEY='AIzaSykdV8g';
 const API_KEY=process.env.YOUTUBE_API_KEY;  
 const BASE_URL='https://www.googleapis.com/youtube/v3/search'
-app.get('/',(req,res)=>{
+app.get('/',requireAuth,(req,res)=>{
     res.sendFile(path.join(__dirname,'public','index.html'));
 })
 
+app.use(express.static(path.join(__dirname,'public')));
 
 app.get('/video',requireAuth,async(req,res)=>{
     const query= req.query.q;
