@@ -73,7 +73,7 @@
   </header>
 
   <nav id="sidebar" style="margin-top: 23px;">
-    <a href="#" class="nav-item"><i>🏠</i> <span>Home</span></a>
+    <a href="/" class="nav-item"><i>🏠</i> <span>Home</span></a>
     <a href="#" class="nav-item"><i>🔥</i> <span>Trending</span></a>
     <a href="#" class="nav-item"><i>📺</i> <span>Subscriptions</span></a>
     <hr style="border: 0; border-top: 1px solid #333; margin: 12px 0;">
@@ -95,8 +95,14 @@
     async function checkSession() {
       const res = await fetch('/api/auth/get-session');
       if (res.ok) {
-        const session = await res.json();
-        document.getElementById('userProfile').innerHTML = `<img src="${session.user.image || ''}" style="width:100%">`;
+   const session = await res.json();
+        const userImg = session.user?.image;
+        if(userImg){
+          document.getElementById('userProfile').innerHTML = `<img src="${userImg}" style="width:100%">` ;
+        }
+        else {
+  userProfile.innerHTML = '👻';
+}
       }
     }
 
