@@ -14,7 +14,7 @@ const __dirname= path.dirname(__filename)
 
 const app=express();
 
- app.use(cookieParser()); // ⭐ PEHLE 
+ app.use(cookieParser());
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
@@ -35,11 +35,10 @@ app.all("/api/auth/*", async (req, res) => {
     authResponse.headers.forEach((value, key) => {
         res.setHeader(key, value);
     });
-
+    
     return res.status(authResponse.status).send(authResponse.body);
 });
 
-// const API_KEY='AIzaSykdV8g';
 const API_KEY=process.env.YOUTUBE_API_KEY;  
 const BASE_URL='https://www.googleapis.com/youtube/v3/search'
 app.get('/',requireAuth,(req,res)=>{
@@ -51,6 +50,8 @@ app.use(express.static(path.join(__dirname,'public')));
 app.get('/video',requireAuth,async(req,res)=>{
     const query= req.query.q;
     if(!query) return res.status(404).send("query not found");
+        // console.log(" YouTube search:", query);
+
     try{
         const response=await axios.get(BASE_URL,{
             params:{
@@ -61,6 +62,7 @@ app.get('/video',requireAuth,async(req,res)=>{
             key:API_KEY
         }
        })
+        //  console.log(" YouTube status:", response.status);
     //    console.log("urls:",response.data.items);
        
 const videos = response.data.items.map((video) => ({
@@ -68,13 +70,23 @@ const videos = response.data.items.map((video) => ({
     videoId: video.id.videoId,
     thumbnail: video.snippet.thumbnails.high ? video.snippet.thumbnails.high.url : video.snippet.thumbnails.medium.url 
 }));
-       console.log("vid",videos);
+    //    console.log("vid",videos);
        
     //    res.send("fine Got it")
        res.json(videos)
 
     }catch(err){
-        res.status(502).json({error:err.message})
+
+        console.error("❌ YOUTUBE API ERROR");
+        console.error("Status:", err.response?.status);
+        console.error("Data:", err.response?.data);
+        console.error("Message:", err.message);
+
+        return res.status(502).json({
+            error:
+                err.response?.data?.error?.message ||
+                err.message
+        });
     }
 
 })
