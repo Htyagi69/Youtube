@@ -92,6 +92,7 @@
 
       <button type="submit" id="btn">Login</button>
     </form>
+    <div><p>Dont have an account? <a href="/Signup.html">SignUp</a></p></div>
   </div>
   <script>
     const handleAuth=async(info)=>{
@@ -108,7 +109,7 @@
           password:password,
         }  
         try{
-       const result=await fetch('https://youtubesearch-l75z.onrender.com/api/auth/sign-in/email',{
+       const result=await fetch('/api/auth/sign-in/email',{
          method:"POST", 
          body:JSON.stringify(payload),
           headers:{ "Content-Type":"application/json", },
