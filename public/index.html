@@ -66,10 +66,11 @@
     </div>
     <div class="search-container">
       <div class="search-bar"><input id="searchInput" type="text" placeholder="Search"></div>
-      <button class="search-btn" onclick="searchVideos()"><img width="30px" src="search.png"/></button>
-      <button class="mic-btn" onclick="Speak()"><img width="30px" src="speak.png"/></button>
+      <button class="search-btn" onclick="searchVideos()"><img width="30px" src="lightsearch.png"/></button>
+      <button class="mic-btn" onclick="Speak()"><img width="30px" src="lightmic.png"/></button>
     </div>
-        <div style="width: 40px; height: 40px; border-radius: 50%; background: #555; display: flex; justify-content: center; align-items: center;font-size: 30px;">👻</div>
+        <div id="userProfile" style="width: 40px; height: 40px; border-radius: 50%; background: #555; display: flex; justify-content: center; align-items: center;font-size: 30px; cursor: pointer;"
+        onclick="handlelogout()"></div>
   </header>
 
   <nav id="sidebar" style="margin-top: 23px;">
@@ -91,21 +92,42 @@
       document.getElementById('sidebar').classList.toggle('compact');
       document.getElementById('mainContent').classList.toggle('expanded');
     }
-
+    
     async function checkSession() {
       const res = await fetch('/api/auth/get-session');
       if (res.ok) {
+
    const session = await res.json();
         const userImg = session.user?.image;
+        const userProfile=document.getElementById('userProfile')
         if(userImg){
-          document.getElementById('userProfile').innerHTML = `<img src="${userImg}" style="width:100%">` ;
+          userProfile.innerHTML = `<img src="${userImg}" style="width:100%">` ;
         }
         else {
-  userProfile.innerHTML = '👻';
-}
+        userProfile.innerHTML = '👻';
+     }
       }
     }
-
+    const handlelogout=async()=>{
+      try{
+     const result=await fetch('/api/auth/sign-out',{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+      },
+      body:JSON.stringify({})
+     })
+     if(result.ok){
+      console.log("Logout Successfully");
+      window.location.reload();
+    }
+    else{
+       console.log("Logout failed",result);
+     }
+    }catch(err){
+      console.log("Logout failed",err);
+    }
+    }
     function renderStoredVideos() {
       const container = document.querySelector('[data-video-container]');
       container.innerHTML = '';
@@ -150,8 +172,15 @@
     async function Speak() {
       const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
       const micBtn = document.querySelector('.mic-btn');
-      recognition.onstart = () => { micBtn.classList.add('active'); document.getElementById('speechStatus').innerText = "Listening..."; };
-      recognition.onresult = (e) => { const t = e.results[0][0].transcript; document.getElementById('searchInput').value = t; searchVideos(t); };
+      recognition.onstart = () => { 
+        micBtn.classList.add('active'); 
+        document.getElementById('speechStatus').innerText = "Listening...";
+       };
+      recognition.onresult = (e) => {
+         const t = e.results[0][0].transcript;
+         console.log("query:",t);
+          document.getElementById('searchInput').value = t; 
+          searchVideos(t); };
       recognition.onend = () => { micBtn.classList.remove('active'); document.getElementById('speechStatus').innerText = "Ready"; };
       recognition.start();
     }
