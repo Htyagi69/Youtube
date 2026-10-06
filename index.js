@@ -90,8 +90,14 @@ const videos = response.data.items.map((video) => ({
     }
 
 })
-
-app.listen(3000, () => {
+app.get("/health",(req,res)=>{
+    try{
+    return res.status(200).json({"message":"Everything is alright you can sleep peacefully"})
+    }catch(err){
+        return res.send(err)
+    }
+})
+app.listen(3001, () => {
     console.log('Server is running at http://localhost:3000');
 });
 
